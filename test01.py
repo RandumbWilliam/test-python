@@ -1,8 +1,6 @@
 from fractions import Fraction
 import numpy as np
 
-from app.schemas.simplex_schema import Simplex
-
 class SimplexService:
     def __init__(self, objective, function, number_variables, number_constraints, lhs_constraints, rhs_constraints, inequality_constraints, variable_constraints):
         # Primary objective self.function
@@ -10,7 +8,6 @@ class SimplexService:
         self.self.function = function
         self.optimal = 0
         self.variable_labels = []
-        self.non_slack_variables = 0
         self.new_number_variables = 0
         self.curr_variables = []
         # Initialize variable and constraints
@@ -51,13 +48,13 @@ class SimplexService:
                     self.lhs_constraints[row].insert(col, self.lhs_constraints[row][col])
                     self.lhs_constraints[row][col + 1] *= -1
 
-        self.non_slack_variables = len(self.function)
+        non_slack_variables = len(self.function)
         # STEP-2: All constraints must be equations
         for row in range(self.number_constraints):
             self.lhs_constraints[row].extend([0] * self.number_constraints)
 
         if self.objective == "max":
-            for i in range(self.non_slack_variables):
+            for i in range(non_slack_variables):
                 self.function[i] *= -1
 
         self.function.extend([0] * self.number_constraints)
@@ -66,19 +63,17 @@ class SimplexService:
         for row in range(self.number_constraints):
             self.variable_labels.append(f"s{row + 1}")
             if self.inequality_constraints[row] == ">=":
-                self.lhs_constraints[row][row + self.non_slack_variables] = -1
+                self.lhs_constraints[row][row + non_slack_variables] = -1
             else:
-                self.lhs_constraints[row][row + self.non_slack_variables] = 1
+                self.lhs_constraints[row][row + non_slack_variables] = 1
 
         return
 
+    # STEP-3: Find Basic Variables
     def basic_variables(self):
-        # STEP-3: Find Basic Variables
         # Transpose the array
         transposed_array = list(map(list, zip(*self.lhs_constraints)))
         # Initialize lists to store the indices of basic variables and their corresponding row indices
-        basic_vars = []
-        basic_var_rows = []
         basic_variables = []
         def exist(target, arr):
             for i in range(len(arr)):
@@ -99,9 +94,6 @@ class SimplexService:
                     basic_variables[exist_index] = {"row": row_index, "col": i}
                 else:
                     basic_variables.append({"row": row_index, "col": i})
-                
-                basic_vars.append(i)
-                basic_var_rows.append(row.index(next(val for val in row if val != 0)))
 
         # Current Variables
         self.curr_variables = [0] * self.new_number_variables

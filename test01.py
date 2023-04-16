@@ -1,11 +1,27 @@
 from fractions import Fraction
 import numpy as np
 
+class SimplexModel:
+    def __init__(self, objective, function, number_variables, number_constraints, lhs_constraints, rhs_constraints, inequality_constraints, variable_constraints):
+        #Initialize variables and constraints
+        self.number_variables = number_variables
+        self.number_constraints = number_constraints
+        # Objective function
+        self.objective = objective
+        self.function = function
+        self.optimal = 0
+        # Subject to
+        self.lhs_constraints = lhs_constraints
+        self.rhs_constraints = rhs_constraints
+        self.inequality_constraints = inequality_constraints
+        self.variable_constraints = variable_constraints
+
+
 class SimplexService:
     def __init__(self, objective, function, number_variables, number_constraints, lhs_constraints, rhs_constraints, inequality_constraints, variable_constraints):
         # Primary objective self.function
         self.objective = objective
-        self.self.function = function
+        self.function = function
         self.optimal = 0
         self.variable_labels = []
         self.new_number_variables = 0
